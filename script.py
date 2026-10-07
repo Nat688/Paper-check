@@ -83,11 +83,13 @@ def send_discord_webhook(build_data):
     }
 
     res = requests.post(WEBHOOK_URL, json=payload)
-    if res.status_code in:
+    
+    # CORRECTION ICI : On vérifie si le statut est inférieur à 400 (codes 200, 204, etc. de succès)
+    if res.status_code < 400:
         print(f"Discord notification sent for build #{build_num}!")
     else:
         print(f"Failed to send Discord notification: {res.status_code} - {res.text}")
-
+        
 def main():
     last_build = get_last_notified_build()
     build_data = fetch_paper_data()
