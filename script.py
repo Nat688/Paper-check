@@ -55,23 +55,21 @@ def fetch_paper_data():
     return None
 
 def send_discord_webhook(build_data):
-    # Adaptation à la nouvelle structure des propriétés (id, download, etc.)
+    # build_data correspond maintenant au dictionnaire du build individuel le plus récent
     build_num = build_data.get("id")
     
-    # Extraction des informations de téléchargement du serveur par défaut
-    server_download = build_data.get("downloads", {}).get("server:default", {})
+    downloads = build_data.get("downloads", {})
+    server_download = downloads.get("server:default", {})
     jar_name = server_download.get("name", "N/A")
     jar_size_bytes = server_download.get("size", 0)
     jar_size_mb = f"{jar_size_bytes / (1024 * 1024):.2f} MB" if jar_size_bytes else "N/A"
 
-    # La structure v3 ne renvoie plus toujours le changelog complet de la même façon,
-    # On extrait un résumé ou on met une valeur par défaut propre.
     changelog = "Consultez les détails sur le site officiel de PaperMC."
 
     payload = {
         "embeds": [
             {
-                "title": "🟡 PAPERMC Added new Build (Dev/Beta)",
+                "title": f"🟡 PAPERMC Added new Build (Dev/Beta)",
                 "color": 15844367,
                 "fields": [
                     {"name": "🆔 ID / Build", "value": f"#{build_num}", "inline": True},
@@ -98,13 +96,18 @@ def send_discord_webhook(build_data):
 
 def main():
     last_build = get_last_notified_build()
-    build_data = fetch_paper_data()
+    builds_list = fetch_paper_data()
     
-    if build_data:
-        current_build = build_data.get("id")
+    # builds_list est une liste reçue de l'API v3
+    if builds_list and len(builds_list) > 0:
+        # On extrait le build le plus récent qui est le TOUT PREMIER de la liste (index 0)
+        latest_build_data = builds_list[0]
+        current_build = latest_build_data.get("id")
+        
+        print(f"Dernier build détecté sur l'API : #{current_build} | Cache actuel : #{last_build}")
         
         if current_build > last_build:
-            send_discord_webhook(build_data)
+            send_discord_webhook(latest_build_data)
             save_last_build(current_build)
         else:
             print(f"No new build. (Last notified: #{last_build} / Current: #{current_build}).")
