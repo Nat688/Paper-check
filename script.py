@@ -4,17 +4,13 @@ import json
 import requests
 
 # ----------------- CONFIGURATION -----------------
-# GitHub va injecter le Webhook ici de manière sécurisée
-WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
-MC_VERSION = "26.3"  # Modifie la version selon tes besoins (ex: 1.21.1)
+# Direct URL with mandatory quotes
+WEBHOOK_URL = "https://discord.com"
+MC_VERSION = "1.21.1"  # Minecraft version to monitor
 
 API_URL = f"https://papermc.io{MC_VERSION}"
 CACHE_FILE = "last_build.json"
 # -------------------------------------------------
-
-if not WEBHOOK_URL:
-    print("Erreur : Le secret DISCORD_WEBHOOK n'est pas configuré sur GitHub.")
-    sys.exit(1)
 
 def get_last_notified_build():
     try:
@@ -46,7 +42,7 @@ def fetch_paper_data():
             return detail_response.json()
             
     except Exception as e:
-        print(f"Erreur API : {e}")
+        print(f"API Error : {e}")
     return None
 
 def send_discord_webhook(build_data):
@@ -58,8 +54,9 @@ def send_discord_webhook(build_data):
     jar_size_mb = f"{jar_size_bytes / (1024 * 1024):.2f} MB" if jar_size_bytes else "N/A"
 
     changes = build_data.get("changes", [])
-    changelog = changes[-1].get("summary", "Aucun résumé fourni.") if changes else "Mise à jour mineure."
+    changelog = changes[-1].get("summary", "No summary provided.") if changes else "Minor update."
 
+    # Discord Embed Structure in English (similar to your image)
     payload = {
         "embeds": [
             {
@@ -69,20 +66,20 @@ def send_discord_webhook(build_data):
                     {"name": "🆔 ID / Build", "value": f"#{build_num}", "inline": True},
                     {"name": "📦 Version", "value": version, "inline": True},
                     {"name": "📁 Jar Size", "value": jar_size_mb, "inline": True},
-                    {"name": "📝 Changelog", "value": changelog, "inline": True}
+                    {"name": "📝 Changelog", "value": changelog, "inline": False}
                 ],
                 "thumbnail": {
                     "url": "https://papermc.io"
                 },
                 "footer": {
-                    "text": "Version Installer - Automatique via GitHub"
+                    "text": "Version Installer - Automatic via GitHub"
                 }
             }
         ]
     }
 
     requests.post(WEBHOOK_URL, json=payload)
-    print(f"Notification Discord envoyée pour le build #{build_num} !")
+    print(f"Discord notification sent for build #{build_num}!")
 
 def main():
     last_build = get_last_notified_build()
@@ -95,7 +92,7 @@ def main():
             send_discord_webhook(build_data)
             save_last_build(current_build)
         else:
-            print(f"Pas de nouveau build (Dernier notifié : #{last_build} / Actuel : #{current_build}).")
+            print(f"No new build. (Last notified: #{last_build} / Current: #{current_build}).")
 
 if __name__ == "__main__":
     main()
