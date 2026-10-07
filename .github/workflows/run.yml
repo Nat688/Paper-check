@@ -1,7 +1,8 @@
 name: Check PaperMC Updates
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/10 * * * *'  # S'exécute automatiquement toutes les 10 minutes
+  workflow_dispatch:        # Permet de lancer le bot manuellement pour tester
 
 jobs:
   run-script:
@@ -9,13 +10,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+
       - name: Install dependencies
         run: pip install requests
+
       - name: Run script
         env:
-          WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK }} # Pour cacher ton lien webhook
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }} # Injection sécurisée du lien Discord
         run: python script.py
+
+      - name: Save Cache
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Mise à jour du cache de build [Skip CI]"
+          file_pattern: 'last_build.json'
