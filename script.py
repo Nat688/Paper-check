@@ -3,19 +3,19 @@ import sys
 import json
 import requests
 
-# ----------------- CONFIGURATION -----------------
+# ----------------- CONFIGURATION UNIQUE -----------------
 WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
 PROJECT = "paper"
 MC_VERSION = "26.3"
 
-# VÉRIFIEZ BIEN CETTE LIGNE : elle doit être exactement comme ceci
+# URL STRICTEMENT CONFORME À LA DOCUMENTATION V3
 API_URL = f"https://papermc.io{PROJECT}/versions/{MC_VERSION}/builds"
 CACHE_FILE = "last_build.json"
 
 HEADERS = {
     "User-Agent": "Paper-Check-Bot/2.0.0 (https://github.com)"
 }
-# -------------------------------------------------
+# --------------------------------------------------------
 
 def get_last_notified_build():
     try:
@@ -35,6 +35,8 @@ def fetch_paper_data():
         sys.exit(1)
         
     try:
+        # Envoi de la requête avec l'URL corrigée et le User-Agent obligatoire
+        print(f"Tentative de connexion à l'URL : {API_URL}")
         response = requests.get(API_URL, headers=HEADERS)
         if response.status_code != 200:
             print(f"Version Minecraft introuvable ou erreur API ({response.status_code})")
@@ -45,8 +47,6 @@ def fetch_paper_data():
             print("Aucun build trouvé pour cette version.")
             return None
             
-        # MODIFICATION ICI : On ne filtre plus par "STABLE" pour pouvoir capter
-        # les builds Beta/Alpha de la version de développement 26.3
         return builds
             
     except Exception as e:
@@ -54,7 +54,6 @@ def fetch_paper_data():
     return None
 
 def send_discord_webhook(build_data):
-    # build_data correspond maintenant au dictionnaire du build individuel le plus récent
     build_num = build_data.get("id")
     
     downloads = build_data.get("downloads", {})
@@ -68,7 +67,7 @@ def send_discord_webhook(build_data):
     payload = {
         "embeds": [
             {
-                "title": f"🟡 PAPERMC Added new Build (Dev/Beta)",
+                "title": "🟡 PAPERMC Added new Build (Dev/Beta)",
                 "color": 15844367,
                 "fields": [
                     {"name": "🆔 ID / Build", "value": f"#{build_num}", "inline": True},
@@ -97,9 +96,8 @@ def main():
     last_build = get_last_notified_build()
     builds_list = fetch_paper_data()
     
-    # builds_list est une liste reçue de l'API v3
     if builds_list and len(builds_list) > 0:
-        # On extrait le build le plus récent qui est le TOUT PREMIER de la liste (index 0)
+        # L'API v3 renvoie le plus récent en premier à l'index 0
         latest_build_data = builds_list[0]
         current_build = latest_build_data.get("id")
         
