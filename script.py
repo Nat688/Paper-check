@@ -46,14 +46,9 @@ def fetch_paper_data():
             print("Aucun build trouvé pour cette version.")
             return None
             
-        # Filtrer pour obtenir uniquement les builds STABLE (recommandé par la doc)
-        stable_builds = [b for b in builds if b.get("channel") == "STABLE"]
-        if not stable_builds:
-            print("Aucun build STABLE disponible.")
-            return None
-            
-        # Le premier élément de la liste retournée par cette API est le plus récent
-        return stable_builds[0]
+        # MODIFICATION ICI : On ne filtre plus par "STABLE" pour pouvoir capter
+        # les builds Beta/Alpha de la version de développement 26.3
+        return builds
             
     except Exception as e:
         print(f"API Error : {e}")
