@@ -78,7 +78,7 @@ def send_discord_webhook(build_data):
                     {"name": "⚖️ Size", "value": jar_size_mb, "inline": True}
                 ],
                 "thumbnail": {
-                    "url": "https://papermc.io"
+                    "url": "https://cdn.discordapp.com/emojis/1557495100907593898.webp?size=56"
                 },
                 "footer": {
                     "text": "Version Installer - Automatic via GitHub"
