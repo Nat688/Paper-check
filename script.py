@@ -5,8 +5,8 @@ import requests
 
 # ----------------- CONFIGURATION -----------------
 # Direct URL with mandatory quotes
-WEBHOOK_URL = "https://discord.com"
-MC_VERSION = "1.21.1"  # Minecraft version to monitor
+WEBHOOK_URL = "https://discord.com/api/webhooks/1557483435424096257/7GLjQ2smPQprqG2aRFp9E3PbehFiORClFwN2D4_xILDyuyW444qalBKw8a80xcfW3aqL"
+MC_VERSION = "26.3"  # Minecraft version to monitor
 
 API_URL = f"https://papermc.io{MC_VERSION}"
 CACHE_FILE = "last_build.json"
