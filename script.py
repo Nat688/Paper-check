@@ -3,19 +3,20 @@ import sys
 import json
 import requests
 
-# ----------------- CONFIGURATION UNIQUE -----------------
+# ----------------- CONFIGURATION DU WIKI -----------------
 WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
 PROJECT = "paper"
-MC_VERSION = "26.3"
+MC_VERSION = "26.3"  # Version Minecraft ciblée
 
-# URL STRICTEMENT CONFORME À LA DOCUMENTATION V3
-API_URL = f"https://papermc.io{PROJECT}/versions/{MC_VERSION}/builds"
+# URL officielle v3 tirée de la documentation
+API_URL = f"https://fill.papermc.io/v3/projects/{PROJECT}/versions/{MC_VERSION}/builds"
 CACHE_FILE = "last_build.json"
 
+# USER-AGENT OBLIGATOIRE (exigé par le wiki sous peine de blocage)
 HEADERS = {
-    "User-Agent": "Paper-Check-Bot/2.0.0 (https://github.com)"
+    "User-Agent": "Paper-Check-Bot/3.0.0 (https://github.com)"
 }
-# --------------------------------------------------------
+# ---------------------------------------------------------
 
 def get_last_notified_build():
     try:
@@ -35,52 +36,52 @@ def fetch_paper_data():
         sys.exit(1)
         
     try:
-        # Envoi de la requête avec l'URL corrigée et le User-Agent obligatoire
-        print(f"Tentative de connexion à l'URL : {API_URL}")
         response = requests.get(API_URL, headers=HEADERS)
         if response.status_code != 200:
-            print(f"Version Minecraft introuvable ou erreur API ({response.status_code})")
+            print(f"Erreur API ({response.status_code}) - Version introuvable.")
             return None
         
         builds = response.json()
-        if not builds:
-            print("Aucun build trouvé pour cette version.")
+        if not builds or len(builds) == 0:
+            print("Aucun build disponible pour cette version.")
             return None
             
-        return builds
+        # Comme demandé, on extrait le build le plus récent (le premier de la liste)
+        latest_build = builds[0]
+        return latest_build
             
     except Exception as e:
-        print(f"API Error : {e}")
+        print(f"Erreur lors de la requête API : {e}")
     return None
 
 def send_discord_webhook(build_data):
+    # Lecture des champs d'après la structure de l'API v3
     build_num = build_data.get("id")
+    channel = build_data.get("channel", "UNKNOWN")
     
     downloads = build_data.get("downloads", {})
-    server_download = downloads.get("server:default", {})
-    jar_name = server_download.get("name", "N/A")
-    jar_size_bytes = server_download.get("size", 0)
+    server_default = downloads.get("server:default", {})
+    jar_name = server_default.get("name", "N/A")
+    jar_size_bytes = server_default.get("size", 0)
     jar_size_mb = f"{jar_size_bytes / (1024 * 1024):.2f} MB" if jar_size_bytes else "N/A"
-
-    changelog = "Consultez les détails sur le site officiel de PaperMC."
 
     payload = {
         "embeds": [
             {
-                "title": "🟡 PAPERMC Added new Build (Dev/Beta)",
+                "title": f"🟢 PAPERMC - Nouveau Build Détecté",
                 "color": 15844367,
                 "fields": [
                     {"name": "🆔 ID / Build", "value": f"#{build_num}", "inline": True},
                     {"name": "📦 Version Minecraft", "value": MC_VERSION, "inline": True},
-                    {"name": "📁 Nom du Fichier", "value": jar_name, "inline": False},
-                    {"name": "⚖️ Taille Jar", "value": jar_size_mb, "inline": True},
-                    {"name": "📝 Notes", "value": changelog, "inline": False}
+                    {"name": "🏷️ Canal (Channel)", "value": channel, "inline": True},
+                    {"name": "📁 Fichier Jar", "value": jar_name, "inline": False},
+                    {"name": "⚖️ Taille", "value": jar_size_mb, "inline": True}
                 ],
                 "thumbnail": {
                     "url": "https://papermc.io"
                 },
                 "footer": {
-                    "text": "Version Installer - Automatic via GitHub"
+                    "text": "Version Installer - Automatique via GitHub"
                 }
             }
         ]
@@ -88,26 +89,24 @@ def send_discord_webhook(build_data):
 
     res = requests.post(WEBHOOK_URL, json=payload)
     if res.status_code < 400:
-        print(f"Discord notification sent for stable build #{build_num}!")
+        print(f"Notification Discord envoyée pour le build #{build_num} !")
     else:
-        print(f"Failed to send Discord notification: {res.status_code} - {res.text}")
+        print(f"Échec de l'envoi Discord : {res.status_code} - {res.text}")
 
 def main():
     last_build = get_last_notified_build()
-    builds_list = fetch_paper_data()
+    latest_build_data = fetch_paper_data()
     
-    if builds_list and len(builds_list) > 0:
-        # L'API v3 renvoie le plus récent en premier à l'index 0
-        latest_build_data = builds_list[0]
+    if latest_build_data:
         current_build = latest_build_data.get("id")
         
-        print(f"Dernier build détecté sur l'API : #{current_build} | Cache actuel : #{last_build}")
+        print(f"Dernier build sur l'API : #{current_build} | Cache actuel : #{last_build}")
         
         if current_build > last_build:
             send_discord_webhook(latest_build_data)
             save_last_build(current_build)
         else:
-            print(f"No new build. (Last notified: #{last_build} / Current: #{current_build}).")
+            print(f"Pas de nouveau build. (Dernier notifié: #{last_build} / Actuel: #{current_build}).")
 
 if __name__ == "__main__":
     main()
