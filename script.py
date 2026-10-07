@@ -6,7 +6,7 @@ import requests
 # ----------------- CONFIGURATION -----------------
 WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
 PROJECT = "paper"
-MC_VERSION = "1.21.1"  # Utilisez un format de version Minecraft standard
+MC_VERSION = "26.3"  # Utilisez un format de version Minecraft standard
 
 # Nouvelle URL API v3 d'après votre documentation
 API_URL = f"https://papermc.io{PROJECT}/versions/{MC_VERSION}/builds"
