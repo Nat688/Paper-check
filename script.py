@@ -72,7 +72,7 @@ def send_discord_webhook(build_data):
                 "color": 15844367,
                 "fields": [
                     {"name": "🆔 ID / Build", "value": f"`#{build_num}`", "inline": True},
-                    {"name": "📦 Version Minecraft", "value": `{MC_VERSION}`, "inline": True},
+                    {"name": "📦 Version Minecraft", "value": "`{MC_VERSION}`", "inline": True},
                     {"name": "🏷️ Canal (Channel)", "value": channel, "inline": True},
                     {"name": "📁 JAR File", "value": jar_name, "inline": False},
                     {"name": "⚖️ Size", "value": jar_size_mb, "inline": True}
