@@ -68,20 +68,20 @@ def send_discord_webhook(build_data):
     payload = {
         "embeds": [
             {
-                "title": f"🟢 PAPERMC - Nouveau Build Détecté",
+                "title": f"🟢 PAPERMC - New Build Detected",
                 "color": 15844367,
                 "fields": [
-                    {"name": "🆔 ID / Build", "value": f"#{build_num}", "inline": True},
-                    {"name": "📦 Version Minecraft", "value": MC_VERSION, "inline": True},
+                    {"name": "🆔 ID / Build", "value": f"`#{build_num}`", "inline": True},
+                    {"name": "📦 Version Minecraft", "value": `MC_VERSION`, "inline": True},
                     {"name": "🏷️ Canal (Channel)", "value": channel, "inline": True},
-                    {"name": "📁 Fichier Jar", "value": jar_name, "inline": False},
-                    {"name": "⚖️ Taille", "value": jar_size_mb, "inline": True}
+                    {"name": "📁 JAR File", "value": jar_name, "inline": False},
+                    {"name": "⚖️ Size", "value": jar_size_mb, "inline": True}
                 ],
                 "thumbnail": {
                     "url": "https://papermc.io"
                 },
                 "footer": {
-                    "text": "Version Installer - Automatique via GitHub"
+                    "text": "Version Installer - Automatic via GitHub"
                 }
             }
         ]
