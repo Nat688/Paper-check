@@ -6,13 +6,12 @@ import requests
 # ----------------- CONFIGURATION -----------------
 WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
 PROJECT = "paper"
-MC_VERSION = "26.3"  # Utilisez un format de version Minecraft standard
+MC_VERSION = "26.3"
 
-# Nouvelle URL API v3 d'après votre documentation
+# VÉRIFIEZ BIEN CETTE LIGNE : elle doit être exactement comme ceci
 API_URL = f"https://papermc.io{PROJECT}/versions/{MC_VERSION}/builds"
 CACHE_FILE = "last_build.json"
 
-# CONDITION OBLIGATOIRE : Un User-Agent personnalisé sous peine de blocage API
 HEADERS = {
     "User-Agent": "Paper-Check-Bot/2.0.0 (https://github.com)"
 }
