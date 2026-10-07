@@ -4,9 +4,9 @@ import json
 import requests
 
 # ----------------- CONFIGURATION -----------------
-# Direct URL with mandatory quotes
-WEBHOOK_URL = "https://discord.com/api/webhooks/1557483435424096257/7GLjQ2smPQprqG2aRFp9E3PbehFiORClFwN2D4_xILDyuyW444qalBKw8a80xcfW3aqL"
-MC_VERSION = "26.3"  # Minecraft version to monitor
+# Le webhook est récupéré de manière sécurisée depuis les variables d'environnement
+WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK")
+MC_VERSION = "26.3"  # Remplacez par une version Minecraft valide (ex: 1.20.4, 1.21, 1.21.1)
 
 API_URL = f"https://papermc.io{MC_VERSION}"
 CACHE_FILE = "last_build.json"
@@ -25,9 +25,14 @@ def save_last_build(build_number):
         json.dump({"last_build": build_number}, f)
 
 def fetch_paper_data():
+    if not WEBHOOK_URL:
+        print("Erreur : La variable d'environnement DISCORD_WEBHOOK est manquante.")
+        sys.exit(1)
+        
     try:
         response = requests.get(API_URL)
         if response.status_code != 200:
+            print(f"Version Minecraft introuvable ou erreur API ({response.status_code})")
             return None
         
         builds = response.json().get("builds", [])
@@ -56,7 +61,6 @@ def send_discord_webhook(build_data):
     changes = build_data.get("changes", [])
     changelog = changes[-1].get("summary", "No summary provided.") if changes else "Minor update."
 
-    # Discord Embed Structure in English (similar to your image)
     payload = {
         "embeds": [
             {
@@ -78,8 +82,11 @@ def send_discord_webhook(build_data):
         ]
     }
 
-    requests.post(WEBHOOK_URL, json=payload)
-    print(f"Discord notification sent for build #{build_num}!")
+    res = requests.post(WEBHOOK_URL, json=payload)
+    if res.status_code in:
+        print(f"Discord notification sent for build #{build_num}!")
+    else:
+        print(f"Failed to send Discord notification: {res.status_code} - {res.text}")
 
 def main():
     last_build = get_last_notified_build()
