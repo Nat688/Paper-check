@@ -71,7 +71,7 @@ def send_discord_webhook(build_data):
     payload = {
         "embeds": [
             {
-                "title": "🟢 PAPERMC Added new Build (STABLE)",
+                "title": "🟡 PAPERMC Added new Build (Dev/Beta)",
                 "color": 15844367,
                 "fields": [
                     {"name": "🆔 ID / Build", "value": f"#{build_num}", "inline": True},
