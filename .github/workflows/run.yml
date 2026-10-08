@@ -1,7 +1,7 @@
 name: Check PaperMC Updates
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Vérification toutes les 5 minutes
+    - cron: '*/30 * * * *'  # Vérification toutes les demi-heures
   workflow_dispatch:        # Permet de tester manuellement
 
 jobs:
