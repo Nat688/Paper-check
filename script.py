@@ -153,7 +153,8 @@ def main():
 
     cached_version, cached_build = load_cache()
     # If the MC version changes (e.g. 26.3 -> 26.4), build numbers restart from zero
-    if cached_version != mc_version:
+    # (an old cache file without a version key is treated as matching)
+    if cached_version not in (None, mc_version):
         cached_build = 0
 
     current = latest["id"]
@@ -170,3 +171,7 @@ def main():
     else:
         print("Send failed, cache not updated: will retry on the next run.")
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
