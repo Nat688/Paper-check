@@ -15,7 +15,7 @@ MC_VERSION_FORCED = os.environ.get("MC_VERSION")   # forces a specific version i
 
 API_BASE = "https://fill.papermc.io/v3/projects"
 CACHE_FILE = "last_build.json"
-HEADERS = {"User-Agent": "Paper-Check-Bot/3.1.0 (+https://github.com/TON_PSEUDO/Paper-check)"}
+HEADERS = {"User-Agent": "Paper-Check-Bot/3.1.0 (+https://github.com/Nat688/Paper-check)"}
 # -------------------------------------------------
 
 
