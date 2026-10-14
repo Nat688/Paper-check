@@ -1,37 +1,36 @@
 name: Check PaperMC Updates
 on:
   schedule:
-    - cron: '*/30 * * * *'  # Vérification toutes les demi-heures
-  workflow_dispatch:        # Permet de tester manuellement
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: paper-check
+  cancel-in-progress: false
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
-    
-    # ÉTAPE CRUCIALE : Autorise GitHub Actions à modifier le dépôt (sauvegarde du cache)
+    timeout-minutes: 5
     permissions:
       contents: write
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
-      - name: Install dependencies
-        run: pip install requests
+      - run: pip install requests
 
       - name: Run script
         env:
-          # ÉTAPE CRUCIALE : Injecte votre webhook secret de manière sécurisée
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: python script.py
 
-      - name: Save Cache
+      - name: Save cache
+        if: success()
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Mise à jour du cache de build [Skip CI]"
+          commit_message: "Update build cache [skip ci]"
           file_pattern: 'last_build.json'
